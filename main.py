@@ -2,6 +2,13 @@ import os
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
 
+### GLOBAL VARIABLES ###
+width, height = 1000, 1000
+start_x, start_y = 10, 10
+line_increment, depth_increment = 30, 30
+line_number = 1
+element_list = []
+
 ### CLASS DEFINITIONS ###
 @dataclass
 class Element:
@@ -76,14 +83,6 @@ def printer(element_tree): # add printing of the project name
     print_branches(element_list)
 
 ### TEST ### 
-
-# initialize global variables
-width, height = 1000, 1000
-start_x, start_y = 10, 10
-line_increment, depth_increment = 30, 30
-line_number = 1
-element_list = []
-
 # build the tree
 build_tree("./testfolder")
 
