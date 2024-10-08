@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 class Element:
     relPath: str
     name: str
+    xy: tuple
 
 @dataclass
 class File(Element):
@@ -16,63 +17,62 @@ class File(Element):
 class Directory(Element):
     children: list
 
-
 ### FUNCTIONS ###
-def tree_walker(path):
+def tree_walker(path, depth):
+    global depth_increment, line_increment, line_number, element_list
     objects = []
     elements = os.listdir(path)
     for element in elements:
+        line_number += 1
+        x, y = depth * depth_increment, line_number * line_increment
         element_path = path + "/" + element
         if os.path.isdir(element_path):
-            children = tree_walker(element_path)
-            objects.append(Directory(element_path, element, children))
+            children = tree_walker(element_path, depth+1)
+            obj = Directory(element_path, element, (x,y), children)
+            objects.append(obj)
+            element_list.append(obj)
         else:
-            objects.append(File(element_path, element))
+            obj = File(element_path, element, (x,y))
+            objects.append(obj)
+            element_list.append(obj)
     return objects
 
 def build_tree(path):
-    elements = tree_walker(path)
-    return Directory(path, ".", elements)
+    elements = tree_walker(path, 1)
+    return elements
 
 def drawLine(element):
     return
 
-def print_tree(obj, depth):
-    global draw, depth_increment, line_increment, line_number
-    for element in obj.children:
-        line_number += 1
-        x, y = depth * depth_increment, line_number * line_increment
-        print(f"x:{x}, y:{y} = {element.name}") # debug print
-        draw.text(
-            xy=(depth* depth_increment, line_number* line_increment), 
+def print_tree(element_list):
+    for element in element_list:
+        draw.text( # put this in seperate funciton at some point
+            xy=(element.xy), 
             text=element.name, 
             fill="black",
             font=font
             )
-        if type(element) == Directory:
-            print_tree(element, depth+1)
-    
 
-def printer(root):
-    print_tree(root, 1)
+def printer(element_tree):
+    print_tree(element_tree)
 
 ### TEST ### 
 
-# build tree: 
-root = build_tree("./testfolder")
-
-# initiate the image and the draw object
+# initialize global variables
 width, height = 1000, 1000
 start_x, start_y = 10, 10
 line_increment, depth_increment = 30, 30
 line_number = 1
+element_list = []
+
+# build the tree
+build_tree("./testfolder")
+
+# initialize iamgedrawer object
 image = Image.new("RGB", (width, height), "white")
 draw = ImageDraw.Draw(image)
 font = ImageFont.load_default(size=30)
 
-draw.text((start_x, start_y),root.name, fill='black', font=font)
-
 # draw the tree into the image
-printer(root)
-
+printer(element_list)
 image.save("example.png")
