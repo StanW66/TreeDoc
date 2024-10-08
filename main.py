@@ -8,12 +8,12 @@ class Element:
     relPath: str
     name: str
     xy: tuple
-    # def __eq__(self, other) -> bool:
-        # return self.xy[1] == other.xy[1]
-    # def __lt__(self, other) -> bool:
-    #     return self.xy[1] < other.xy[1]
-    # def __gt__(self, other) -> bool:
-        # return self.xy[1] > other.xy[1]
+    def __eq__(self, other) -> bool:
+        return self.xy[1] == other.xy[1]
+    def __lt__(self, other) -> bool:
+        return self.xy[1] < other.xy[1]
+    def __gt__(self, other) -> bool:
+        return self.xy[1] > other.xy[1]
 
 @dataclass
 class File(Element):
@@ -50,9 +50,8 @@ def build_tree(path):
 def drawLine(element):
     return
 
-def print_tree(element_list):
+def print_text(element_list):
     for element in sorted(element_list):
-        print(element.name)
         draw.text( # put this in seperate funciton at some point
             xy=(element.xy), 
             text=element.name, 
@@ -61,8 +60,20 @@ def print_tree(element_list):
             )
     return 
 
+def print_branches(element_list):
+# - draw the lines for the tree structure visualization:
+    # do this by taking every directory that has children,
+    # then just connect the dots of the directory and the dots of the children
+    for element in element_list:
+        if type(element) == Directory:
+            if len(element.children) > 0: 
+                # draw the lines here
+                pass
+    return
+
 def printer(element_tree): # add printing of the project name 
-    print_tree(element_tree)
+    print_text(element_list)
+    print_branches(element_list)
 
 ### TEST ### 
 
