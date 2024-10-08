@@ -8,6 +8,12 @@ class Element:
     relPath: str
     name: str
     xy: tuple
+    # def __eq__(self, other) -> bool:
+        # return self.xy[1] == other.xy[1]
+    # def __lt__(self, other) -> bool:
+    #     return self.xy[1] < other.xy[1]
+    # def __gt__(self, other) -> bool:
+        # return self.xy[1] > other.xy[1]
 
 @dataclass
 class File(Element):
@@ -45,15 +51,17 @@ def drawLine(element):
     return
 
 def print_tree(element_list):
-    for element in element_list:
+    for element in sorted(element_list):
+        print(element.name)
         draw.text( # put this in seperate funciton at some point
             xy=(element.xy), 
             text=element.name, 
             fill="black",
             font=font
             )
+    return 
 
-def printer(element_tree):
+def printer(element_tree): # add printing of the project name 
     print_tree(element_tree)
 
 ### TEST ### 
