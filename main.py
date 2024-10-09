@@ -1,15 +1,22 @@
 import os
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
+import re
 
 ### GLOBAL VARIABLES ###
 width, height = 1000, 1000
 start_x, start_y = 10, 10
-line_increment, depth_increment = 30, 30
 line_number = 1
 element_list = []
+icon_size = 50
+font_size = 30
+parent_offset_y = font_size + 5
+parent_offset_x = icon_size/2
+child_offset_y = font_size / 2
+child_offset_x = -5
+line_increment = font_size + 10
+depth_increment = 50
 
-### CLASS DEFINITIONS ###
 @dataclass
 class Element:
     relPath: str
@@ -24,7 +31,9 @@ class Element:
 
 @dataclass
 class File(Element):
-    pass
+    def get_file_suffix(self):
+        match = re.search(r'\.([^.]+)$', self.name)
+        return match.group(1) if match else None
 
 @dataclass
 class Directory(Element):
@@ -54,9 +63,6 @@ def build_tree(path):
     elements = tree_walker(path, 1)
     return elements
 
-def drawLine(element):
-    return
-
 def print_text(element_list):
     for element in sorted(element_list):
         draw.text( # put this in seperate funciton at some point
@@ -68,17 +74,23 @@ def print_text(element_list):
     return 
 
 def print_branches(element_list):
-# - draw the lines for the tree structure visualization:
-    # do this by taking every directory that has children,
-    # then just connect the dots of the directory and the dots of the children
     for element in element_list:
         if type(element) == Directory:
-            if len(element.children) > 0: 
-                # draw the lines here
-                pass
+            parent_xy = (element.xy[0] + parent_offset_x, element.xy[1] + parent_offset_y)
+            for child in element.children:
+                child_xy = (child.xy[0] + child_offset_x, child.xy[1] + child_offset_y)
+                elbow = (parent_xy[0], child_xy[1])
+                draw.line([parent_xy, elbow], fill="black", width=1)
+                draw.line([child_xy, elbow], fill="black", width=1)
+    return
+
+def print_icons(element_list):
+    # Open a file here
+    # the use image.paste() to put it on our main image
     return
 
 def printer(element_tree): # add printing of the project name 
+    print_icons(element_list)
     print_text(element_list)
     print_branches(element_list)
 
@@ -89,7 +101,7 @@ build_tree("./testfolder")
 # initialize iamgedrawer object
 image = Image.new("RGB", (width, height), "white")
 draw = ImageDraw.Draw(image)
-font = ImageFont.load_default(size=30)
+font = ImageFont.load_default(size=font_size)
 
 # draw the tree into the image
 printer(element_list)

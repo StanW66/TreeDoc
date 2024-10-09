@@ -13,7 +13,6 @@ class File(Element):
     # fileType: str
     pass
 
-@dataclass
 class Directory(Element):
     children: list
 
