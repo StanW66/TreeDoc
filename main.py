@@ -8,7 +8,7 @@ width, height = 1000, 1000
 start_x, start_y = 10, 10
 line_number = 1
 element_list = []
-icon_size = 50
+icon_size = 30
 font_size = 30
 parent_offset_y = font_size + 5
 parent_offset_x = icon_size/2
@@ -17,7 +17,9 @@ child_offset_x = -5
 line_increment = font_size + 10
 depth_increment = 50
 
+### CLASSES ###
 @dataclass
+
 class Element:
     relPath: str
     name: str
@@ -33,7 +35,7 @@ class Element:
 class File(Element):
     def get_file_suffix(self):
         match = re.search(r'\.([^.]+)$', self.name)
-        return match.group(1) if match else None
+        return match.group(1) if match else "generic"
 
 @dataclass
 class Directory(Element):
@@ -59,21 +61,22 @@ def tree_walker(path, depth):
             element_list.append(obj)
     return objects
 
-def build_tree(path):
+def build_tree(path): # do i need this function? 
     elements = tree_walker(path, 1)
     return elements
 
 def print_text(element_list):
     for element in sorted(element_list):
+        xy = (element.xy[0] + icon_size + 5, element.xy[1])
         draw.text( # put this in seperate funciton at some point
-            xy=(element.xy), 
+            xy=(xy), 
             text=element.name, 
             fill="black",
             font=font
             )
     return 
 
-def print_branches(element_list):
+def print_branches(element_list): # fix ofset to make space for the icons
     for element in element_list:
         if type(element) == Directory:
             parent_xy = (element.xy[0] + parent_offset_x, element.xy[1] + parent_offset_y)
@@ -85,8 +88,17 @@ def print_branches(element_list):
     return
 
 def print_icons(element_list):
-    # Open a file here
-    # the use image.paste() to put it on our main image
+    for element in element_list:
+        if type(element) == File:
+            icon = element.get_file_suffix() + ".png"
+        elif len(element.children) > 0:
+            icon = "full_dir.png"
+        else: 
+            icon = "empty_dir.png"
+        full_path = "./icons/" + icon
+        with Image.open(full_path) as i:
+            smol_icon = i.resize((icon_size,icon_size))
+            image.paste(smol_icon,element.xy)
     return
 
 def printer(element_tree): # add printing of the project name 
