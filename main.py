@@ -15,8 +15,8 @@ CHILD_OFFSET_Y = FONT_SIZE / 2
 CHILD_OFFSET_X = -5
 LINE_INCREMENT = FONT_SIZE + 10
 DEPTH_INCREMENT = 50
-# Windows Size: 
 WIDTH, HEIGHT = 1000, 1000
+ICON_DIR = "./icons/"
 
 ### CLASSES ###
 @dataclass
@@ -36,14 +36,25 @@ class File(Element):
     def get_file_suffix(self): # thanks gpt
         match = re.search(r'\.([^.]+)$', self.name)
         return match.group(1) if match else "generic"
+    def define_element_icon(self):
+        icon = self.get_file_suffix() + ".png"
+        if icon not in os.listdir(ICON_DIR):
+            icon = "generic.png"
+        return ICON_DIR + icon
 
 @dataclass
 class Directory(Element):
     children: list
+    def define_element_icon(self):
+        if len(self.children) > 0:
+            icon = "full_dir.png"
+        else: 
+            icon = "empty_dir.png"
+        return ICON_DIR + icon
 
 ### FUNCTIONS ###
 def tree_walker(path, depth):
-    global DEPTH_INCREMENT, LINE_INCREMENT, LINE_NUMBER, ELEMENT_LIST
+    global LINE_NUMBER, ELEMENT_LIST
     objects = []
     elements = os.listdir(path)
     for element in elements:
@@ -72,14 +83,11 @@ def get_text_dimensions(text_string, font):
 def define_window_size():
     global WIDTH, HEIGHT
     max = 0
-    longest_name = ""
     for element in ELEMENT_LIST:
         text_width, text_height = get_text_dimensions(element.name, font=font)
         length = text_width + element.xy[0]
         if length > max:
-            max = length
-            longest_name = element.name
-    text_width, text_height = get_text_dimensions(longest_name,font=font)
+            max = length 
     WIDTH = max + START_X*4 + ICON_SIZE
     HEIGHT = len(ELEMENT_LIST) * LINE_INCREMENT + LINE_INCREMENT*3
     return
@@ -107,24 +115,9 @@ def print_branches(element_list): # fix ofset to make space for the icons
     return
 
 def print_icons(element_list):
-    icon_dir = "./icons/"
     for element in element_list:
-        # get file extension and define icon accordingly
-        if type(element) == File:
-            icon = element.get_file_suffix() + ".png"
-        elif len(element.children) > 0:
-            icon = "full_dir.png"
-        else: 
-            icon = "empty_dir.png"
-
-        # check if we have that icon, else change to generic
-        if icon in os.listdir(icon_dir):
-            full_path = icon_dir + icon
-        else: 
-            full_path = icon_dir + "generic.png"
-
-        # print the appropriate icon to the image. 
-        with Image.open(full_path) as i:
+        icon_path = element.define_element_icon()
+        with Image.open(icon_path) as i:
             smol_icon = i.resize((ICON_SIZE,ICON_SIZE))
             image.paste(smol_icon, element.xy, smol_icon)
     return
@@ -138,16 +131,13 @@ def printer(): # add printing of the project name
 ### TEST ### 
 font = ImageFont.load_default(size=FONT_SIZE)
 # build the tree
-build_tree("./testfolder")
+build_tree(".")
 
 # initialize iamgedrawer object
 image = Image.new("RGB", (WIDTH, HEIGHT), "white")
 draw = ImageDraw.Draw(image)
+
 # draw the tree into the image
 printer()
-
-# measuring the fontsize
-for i in range(1,1000,FONT_SIZE):
-    draw.point((i,i), fill="black")
 
 image.save("example.png")
