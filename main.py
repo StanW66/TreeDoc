@@ -7,15 +7,15 @@ import re
 START_X, START_Y = 10, 10
 LINE_NUMBER = 1
 ELEMENT_LIST = [] 
-ICON_SIZE = 30
 FONT_SIZE = 30
+ICON_SIZE = FONT_SIZE 
 PARENT_OFFSET_Y = FONT_SIZE + 5
-PARENT_OFFSET_X = ICON_SIZE/2
+PARENT_OFFSET_X = ICON_SIZE / 2
 CHILD_OFFSET_Y = FONT_SIZE / 2
 CHILD_OFFSET_X = -5
 LINE_INCREMENT = FONT_SIZE + 10
 DEPTH_INCREMENT = 50
-WIDTH, HEIGHT = 1000, 1000
+WINDOW_WIDTH, WINDOW_HEIGHT = 1000, 1000
 ICON_DIR = "./icons/"
 
 ### CLASSES ###
@@ -33,10 +33,10 @@ class Element:
 
 @dataclass
 class File(Element):
-    def get_file_suffix(self): # thanks gpt
+    def get_file_suffix(self) -> str: # thanks gpt
         match = re.search(r'\.([^.]+)$', self.name)
         return match.group(1) if match else "generic"
-    def define_element_icon(self):
+    def define_element_icon(self) -> str:
         icon = self.get_file_suffix() + ".png"
         if icon not in os.listdir(ICON_DIR):
             icon = "generic.png"
@@ -45,7 +45,7 @@ class File(Element):
 @dataclass
 class Directory(Element):
     children: list
-    def define_element_icon(self):
+    def define_element_icon(self) -> str:
         if len(self.children) > 0:
             icon = "full_dir.png"
         else: 
@@ -53,7 +53,7 @@ class Directory(Element):
         return ICON_DIR + icon
 
 ### FUNCTIONS ###
-def tree_walker(path, depth):
+def tree_walker(path, depth) -> list:
     global LINE_NUMBER, ELEMENT_LIST
     objects = []
     elements = os.listdir(path)
@@ -72,7 +72,7 @@ def tree_walker(path, depth):
             ELEMENT_LIST.append(obj)
     return objects
 
-def get_text_dimensions(text_string, font):
+def get_text_dimensions(text_string, font) -> tuple:
     # source: https://levelup.gitconnected.com/how-to-properly-calculate-text-size-in-pil-images-17a2cc6f51fd
     # https://stackoverflow.com/a/46220683/9263761
     ascent, descent = font.getmetrics()
@@ -81,18 +81,18 @@ def get_text_dimensions(text_string, font):
     return (text_width, text_height)
 
 def define_window_size():
-    global WIDTH, HEIGHT
+    global WINDOW_WIDTH, WINDOW_HEIGHT, LINE_INCREMENT
     max = 0
     for element in ELEMENT_LIST:
         text_width, text_height = get_text_dimensions(element.name, font=font)
         length = text_width + element.xy[0]
         if length > max:
             max = length 
-    WIDTH = max + START_X*4 + ICON_SIZE
-    HEIGHT = len(ELEMENT_LIST) * LINE_INCREMENT + LINE_INCREMENT*3
+    WINDOW_WIDTH = max + START_X*4 + ICON_SIZE
+    WINDOW_HEIGHT = len(ELEMENT_LIST) * LINE_INCREMENT + 3 * LINE_INCREMENT
     return
 
-def build_tree(path): # do i need this function? 
+def build_tree(path) -> list:
     elements = tree_walker(path, 1)
     define_window_size()
     return elements
@@ -132,9 +132,8 @@ def printer(): # add printing of the project name
 font = ImageFont.load_default(size=FONT_SIZE)
 # build the tree
 build_tree(".")
-
 # initialize iamgedrawer object
-image = Image.new("RGB", (WIDTH, HEIGHT), "white")
+image = Image.new("RGB", (WINDOW_WIDTH, WINDOW_HEIGHT), "white")
 draw = ImageDraw.Draw(image)
 
 # draw the tree into the image
