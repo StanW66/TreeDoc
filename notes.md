@@ -1,11 +1,13 @@
 ## Idea: 
 A program that makes a nice image out of a dict tree.
-it should work on linux and Windows. 
+it should work on linux and maybe Windows. 
+it works on both now but doing the setup for windows might be to much. Linux has precedent.
 
 ## TODO:
-- .treedocignore
-- print the project name according to the directory in which you are executing it. 
 - figure out how to execute in a folder and use that directory accordingly.
+    it will allready do that with just a .
 - setup script
-    - .treedocignore directory in ~ and store everything there
+    - .treedocignore in the project
+    - directory in ~ and store everything there
     - reference to it in path
+- the printing the project title doesn't work because it just print a . which is correct for the program. I have to get the project name again. 

@@ -5,7 +5,7 @@ import re
 
 ### GLOBAL VARIABLES ###
 
-PROJECT_FOLDER = "/home/swcy/dev/dockertest/Sourcecode-IPA-Marco_Zollet"
+PROJECT_FOLDER = "."
 START_X, START_Y = 10, 10
 LINE_NUMBER = 1
 ELEMENT_LIST = [] 
@@ -55,14 +55,33 @@ class Directory(Element):
         return ICON_DIR + icon
 
 ### FUNCTIONS ###
+
+def load_ignores():
+    dir_list = os.listdir(PROJECT_FOLDER)
+    if ".tdignore" in dir_list:
+        with open(".tdignore","r") as tdi:
+            ignore_list = list(map(lambda x: x.strip(), tdi.readlines()))
+    else:
+        print("no ignore file found.")
+    return ignore_list
+
+def check_igonre(element_path):
+    if element_path[2:] in IGNORE_LIST:
+        print("foundthingstoignoire")
+        return True
+    else:
+        return False
+
 def tree_walker(path, depth) -> list:
     global LINE_NUMBER, ELEMENT_LIST
     objects = []
     elements = os.listdir(path)
     for element in elements:
+        element_path = path + "/" + element
+        if check_igonre(element_path):
+            continue
         LINE_NUMBER += 1
         x, y = depth * DEPTH_INCREMENT, LINE_NUMBER * LINE_INCREMENT
-        element_path = path + "/" + element
         if os.path.isdir(element_path):
             children = tree_walker(element_path, depth+1)
             obj = Directory(element_path, element, (x,y), children)
@@ -142,6 +161,7 @@ def printer(): # add printing of the project name
 font = ImageFont.load_default(size=FONT_SIZE)
 title_font = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
 # build the tree
+IGNORE_LIST = load_ignores()
 build_tree(".")
 # initialize iamgedrawer object
 image = Image.new("RGB", (WINDOW_WIDTH, WINDOW_HEIGHT), "white")
