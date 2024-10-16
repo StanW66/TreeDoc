@@ -4,6 +4,8 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 
 ### GLOBAL VARIABLES ###
+
+PROJECT_FOLDER = "/home/swcy/dev/dockertest/Sourcecode-IPA-Marco_Zollet"
 START_X, START_Y = 10, 10
 LINE_NUMBER = 1
 ELEMENT_LIST = [] 
@@ -122,7 +124,15 @@ def print_icons(element_list):
             image.paste(smol_icon, element.xy, smol_icon)
     return
 
+def print_project_name(project_path):
+    pattern = r"([^/]+)$"
+    match = re.search(pattern, project_path)
+    if match:
+        draw.text(xy=(START_X,START_Y), text=match.group(0), fill="black", font=title_font)
+    return
+
 def printer(): # add printing of the project name 
+    print_project_name(PROJECT_FOLDER)
     print_icons(ELEMENT_LIST)
     print_text(ELEMENT_LIST)
     print_branches(ELEMENT_LIST)
@@ -130,6 +140,7 @@ def printer(): # add printing of the project name
 
 ### TEST ### 
 font = ImageFont.load_default(size=FONT_SIZE)
+title_font = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
 # build the tree
 build_tree(".")
 # initialize iamgedrawer object
