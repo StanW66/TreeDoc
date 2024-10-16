@@ -4,7 +4,6 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 
 ### GLOBAL VARIABLES ###
-
 PROJECT_FOLDER = "."
 START_X, START_Y = 10, 10
 LINE_NUMBER = 1
@@ -55,8 +54,7 @@ class Directory(Element):
         return ICON_DIR + icon
 
 ### FUNCTIONS ###
-
-def load_ignores():
+def load_ignores() -> list:
     dir_list = os.listdir(PROJECT_FOLDER)
     if ".tdignore" in dir_list:
         with open(".tdignore","r") as tdi:
@@ -65,9 +63,8 @@ def load_ignores():
         print("no ignore file found.")
     return ignore_list
 
-def check_igonre(element_path):
+def check_igonre(element_path) -> bool:
     if element_path[2:] in IGNORE_LIST:
-        print("foundthingstoignoire")
         return True
     else:
         return False
@@ -77,11 +74,16 @@ def tree_walker(path, depth) -> list:
     objects = []
     elements = os.listdir(path)
     for element in elements:
+
+        # check if it should be ignored
         element_path = path + "/" + element
         if check_igonre(element_path):
             continue
+
+        # add increments
         LINE_NUMBER += 1
         x, y = depth * DEPTH_INCREMENT, LINE_NUMBER * LINE_INCREMENT
+
         if os.path.isdir(element_path):
             children = tree_walker(element_path, depth+1)
             obj = Directory(element_path, element, (x,y), children)
@@ -113,10 +115,10 @@ def define_window_size():
     WINDOW_HEIGHT = len(ELEMENT_LIST) * LINE_INCREMENT + 3 * LINE_INCREMENT
     return
 
-def build_tree(path) -> list:
+def build_tree(path):
     elements = tree_walker(path, 1)
     define_window_size()
-    return elements
+    return 
 
 def print_text(element_list):
     for element in sorted(element_list):
@@ -143,14 +145,14 @@ def print_icons(element_list):
             image.paste(smol_icon, element.xy, smol_icon)
     return
 
-def print_project_name(project_path):
+def print_project_name(project_path): # this is not working
     pattern = r"([^/]+)$"
     match = re.search(pattern, project_path)
     if match:
         draw.text(xy=(START_X,START_Y), text=match.group(0), fill="black", font=title_font)
     return
 
-def printer(): # add printing of the project name 
+def printer(): 
     print_project_name(PROJECT_FOLDER)
     print_icons(ELEMENT_LIST)
     print_text(ELEMENT_LIST)
