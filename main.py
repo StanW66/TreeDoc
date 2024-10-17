@@ -74,16 +74,11 @@ def tree_walker(path, depth) -> list:
     objects = []
     elements = os.listdir(path)
     for element in elements:
-
-        # check if it should be ignored
         element_path = path + "/" + element
         if check_igonre(element_path):
             continue
-
-        # add increments
         LINE_NUMBER += 1
         x, y = depth * DEPTH_INCREMENT, LINE_NUMBER * LINE_INCREMENT
-
         if os.path.isdir(element_path):
             children = tree_walker(element_path, depth+1)
             obj = Directory(element_path, element, (x,y), children)
@@ -120,14 +115,14 @@ def build_tree(path):
     define_window_size()
     return 
 
-def print_text(element_list):
-    for element in sorted(element_list):
+def print_text():
+    for element in sorted(ELEMENT_LIST):
         xy = (element.xy[0] + ICON_SIZE + 5, element.xy[1])
         draw.text(xy=(xy), text=element.name, fill="black", font=font)
     return 
 
-def print_branches(element_list): # fix ofset to make space for the icons
-    for element in element_list:
+def print_branches(): # fix ofset to make space for the icons
+    for element in ELEMENT_LIST:
         if type(element) == Directory:
             parent_xy = (element.xy[0] + PARENT_OFFSET_X, element.xy[1] + PARENT_OFFSET_Y)
             for child in element.children:
@@ -137,26 +132,24 @@ def print_branches(element_list): # fix ofset to make space for the icons
                 draw.line([child_xy, elbow], fill="black", width=1)
     return
 
-def print_icons(element_list):
-    for element in element_list:
+def print_icons():
+    for element in ELEMENT_LIST:
         icon_path = element.define_element_icon()
         with Image.open(icon_path) as i:
             smol_icon = i.resize((ICON_SIZE,ICON_SIZE))
             image.paste(smol_icon, element.xy, smol_icon)
     return
 
-def print_project_name(project_path): # this is not working
-    pattern = r"([^/]+)$"
-    match = re.search(pattern, project_path)
-    if match:
-        draw.text(xy=(START_X,START_Y), text=match.group(0), fill="black", font=title_font)
+def print_project_name(): # this is not working
+    project_name = os.path.basename(os.getcwd())
+    draw.text(xy=(START_X,START_Y), text=project_name, fill="black", font=title_font)
     return
 
 def printer(): 
-    print_project_name(PROJECT_FOLDER)
-    print_icons(ELEMENT_LIST)
-    print_text(ELEMENT_LIST)
-    print_branches(ELEMENT_LIST)
+    print_project_name()
+    print_icons()
+    print_text()
+    print_branches()
     return
 
 ### TEST ### 
@@ -164,7 +157,7 @@ font = ImageFont.load_default(size=FONT_SIZE)
 title_font = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
 # build the tree
 IGNORE_LIST = load_ignores()
-build_tree(".")
+build_tree(PROJECT_FOLDER)
 # initialize iamgedrawer object
 image = Image.new("RGB", (WINDOW_WIDTH, WINDOW_HEIGHT), "white")
 draw = ImageDraw.Draw(image)
