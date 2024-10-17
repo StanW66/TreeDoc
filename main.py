@@ -111,7 +111,7 @@ def define_window_size():
     return
 
 def build_tree(path):
-    elements = tree_walker(path, 1)
+    tree_walker(path, 1)
     define_window_size()
     return 
 
