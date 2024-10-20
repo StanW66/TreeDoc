@@ -58,7 +58,14 @@ def load_ignores() -> list:
     dir_list = os.listdir(PROJECT_FOLDER)
     if ".tdignore" in dir_list:
         with open(".tdignore","r") as tdi:
-            ignore_list = list(map(lambda x: x.strip(), tdi.readlines()))
+            line_list = list(map(lambda x: x.strip(), tdi.readlines()))
+            def filter_comment(line):
+                if re.match(r'^\s*#', line):
+                    return False
+                else:
+                    return True
+            ignore_list = list(filter(filter_comment, line_list))
+            print(ignore_list)
     else:
         print("no ignore file found.")
     return ignore_list
@@ -100,13 +107,13 @@ def get_text_dimensions(text_string, font) -> tuple:
 
 def define_window_size():
     global WINDOW_WIDTH, WINDOW_HEIGHT, LINE_INCREMENT
-    max = 0
+    max_line_length = 0
     for element in ELEMENT_LIST:
         text_width, text_height = get_text_dimensions(element.name, font=font)
         length = text_width + element.xy[0]
-        if length > max:
-            max = length 
-    WINDOW_WIDTH = max + START_X*4 + ICON_SIZE
+        if length > max_line_length:
+            max_line_length = length 
+    WINDOW_WIDTH = max_line_length + START_X*4 + ICON_SIZE
     WINDOW_HEIGHT = len(ELEMENT_LIST) * LINE_INCREMENT + 3 * LINE_INCREMENT
     return
 

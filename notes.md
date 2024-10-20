@@ -10,6 +10,6 @@ it works on both now but doing the setup for windows might be to much. Linux has
     - .treedocignore in the project
     - directory in ~ and store everything there
     - reference to it in path
-- the printing the project title doesn't work because it just print a . which is correct for the program. I have to get the project name again. 
 - use sys to read arguments and make it into a commandline util!
 - implement #comments in .tdignore
+- put all the global variables in classes. maybe tree and canvas. 
