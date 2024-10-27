@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
@@ -59,7 +60,7 @@ def load_ignores() -> list:
     if ".tdignore" in dir_list:
         with open(".tdignore","r") as tdi:
             line_list = list(map(lambda x: x.strip(), tdi.readlines()))
-            def filter_comment(line):
+            def filter_comment(line): # function to ignore comments in ignore file
                 if re.match(r'^\s*#', line):
                     return False
                 else:
