@@ -5,10 +5,14 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 
 ### GLOBAL VARIABLES ###
-PROJECT_FOLDER = "."
+PROJECT_FOLDER = "/home/swcy/dev/infra/infrastruktur"
+IGNORE_FILE_NAME = ".tdignore"
+ELEMENT_LIST = [] 
+ICON_DIR = "./icons/"
+MAX_DEPTH = 2
+
 START_X, START_Y = 10, 10
 LINE_NUMBER = 1
-ELEMENT_LIST = [] 
 FONT_SIZE = 30
 ICON_SIZE = FONT_SIZE 
 PARENT_OFFSET_Y = FONT_SIZE + 5
@@ -18,7 +22,6 @@ CHILD_OFFSET_X = -5
 LINE_INCREMENT = FONT_SIZE + 10
 DEPTH_INCREMENT = 50
 WINDOW_WIDTH, WINDOW_HEIGHT = 1000, 1000
-ICON_DIR = "./icons/"
 
 ### CLASSES ###
 @dataclass
@@ -26,6 +29,7 @@ class Element:
     relPath: str
     name: str
     xy: tuple
+    depth: int
     def __eq__(self, other) -> bool:
         return self.xy[1] == other.xy[1]
     def __lt__(self, other) -> bool:
@@ -57,8 +61,9 @@ class Directory(Element):
 ### FUNCTIONS ###
 def load_ignores() -> list:
     dir_list = os.listdir(PROJECT_FOLDER)
-    if ".tdignore" in dir_list:
-        with open(".tdignore","r") as tdi:
+    if IGNORE_FILE_NAME in dir_list:
+        ignore_file_path = PROJECT_FOLDER + "/" + IGNORE_FILE_NAME
+        with open(ignore_file_path,"r") as tdi:
             line_list = list(map(lambda x: x.strip(), tdi.readlines()))
             def filter_comment(line): # function to ignore comments in ignore file
                 if re.match(r'^\s*#', line):
@@ -66,37 +71,40 @@ def load_ignores() -> list:
                 else:
                     return True
             ignore_list = list(filter(filter_comment, line_list))
-            print(ignore_list)
     else:
         print("no ignore file found.")
+        ignore_list = []
     return ignore_list
 
-def check_igonre(element_path) -> bool:
-    if element_path[2:] in IGNORE_LIST:
+def check_igonre(element) -> bool:
+    if element in IGNORE_LIST:
         return True
     else:
         return False
 
 def tree_walker(path, depth) -> list:
-    global LINE_NUMBER, ELEMENT_LIST
-    objects = []
-    elements = os.listdir(path)
-    for element in elements:
-        element_path = path + "/" + element
-        if check_igonre(element_path):
-            continue
-        LINE_NUMBER += 1
-        x, y = depth * DEPTH_INCREMENT, LINE_NUMBER * LINE_INCREMENT
-        if os.path.isdir(element_path):
-            children = tree_walker(element_path, depth+1)
-            obj = Directory(element_path, element, (x,y), children)
-            objects.append(obj)
-            ELEMENT_LIST.append(obj)
-        else:
-            obj = File(element_path, element, (x,y))
-            objects.append(obj)
-            ELEMENT_LIST.append(obj)
-    return objects
+    if depth <= MAX_DEPTH:
+        global LINE_NUMBER, ELEMENT_LIST
+        objects = []
+        elements = os.listdir(path)
+        for element in elements:
+            element_path = path + "/" + element
+            if check_igonre(element):
+                continue
+            LINE_NUMBER += 1
+            x, y = depth * DEPTH_INCREMENT, LINE_NUMBER * LINE_INCREMENT
+            if os.path.isdir(element_path):
+                children = tree_walker(element_path, depth+1)
+                obj = Directory(element_path, element, (x,y), depth, children)
+                objects.append(obj)
+                ELEMENT_LIST.append(obj)
+            else:
+                obj = File(element_path, element, (x,y), depth)
+                objects.append(obj)
+                ELEMENT_LIST.append(obj)
+        return objects
+    else:
+        return ["too deep placeholder"]
 
 def get_text_dimensions(text_string, font) -> tuple:
     # source: https://levelup.gitconnected.com/how-to-properly-calculate-text-size-in-pil-images-17a2cc6f51fd
@@ -134,10 +142,11 @@ def print_branches(): # fix ofset to make space for the icons
         if type(element) == Directory:
             parent_xy = (element.xy[0] + PARENT_OFFSET_X, element.xy[1] + PARENT_OFFSET_Y)
             for child in element.children:
-                child_xy = (child.xy[0] + CHILD_OFFSET_X, child.xy[1] + CHILD_OFFSET_Y)
-                elbow = (parent_xy[0], child_xy[1])
-                draw.line([parent_xy, elbow], fill="black", width=1)
-                draw.line([child_xy, elbow], fill="black", width=1)
+                if type(child) != str: # this is to avoid the placeholders for elements which are too deep. 
+                    child_xy = (child.xy[0] + CHILD_OFFSET_X, child.xy[1] + CHILD_OFFSET_Y)
+                    elbow = (parent_xy[0], child_xy[1])
+                    draw.line([parent_xy, elbow], fill="black", width=1)
+                    draw.line([child_xy, elbow], fill="black", width=1)
     return
 
 def print_icons():
@@ -172,5 +181,4 @@ draw = ImageDraw.Draw(image)
 
 # draw the tree into the image
 printer()
-
 image.save("example.png")

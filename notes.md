@@ -13,4 +13,8 @@ it works on both now but doing the setup for windows might be to much. Linux has
     - do the shebang and add to path in Linux
     - fuck windows.
 - use sys to read arguments and make it into a commandline util!
+<<<<<<< Updated upstream
 - put all the global variables in classes. maybe tree and canvas. 
+=======
+- 
+>>>>>>> Stashed changes
