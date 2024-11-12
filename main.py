@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 
 ### GLOBAL VARIABLES ###
-PROJECT_FOLDER = "/home/swcy/dev/infra/infrastruktur"
+PROJECT_FOLDER = ""
 IGNORE_FILE_NAME = ".tdignore"
 ELEMENT_LIST = [] 
 ICON_DIR = "./icons/"
