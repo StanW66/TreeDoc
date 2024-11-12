@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import argparse
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
 import re
@@ -169,9 +170,17 @@ def printer():
     print_branches()
     return
 
-### TEST ### 
+### RUN ### 
+parser = argparse.ArgumentParser(prog="TreeDoc", description="Create lovely pictures of your project's file tree!", epilog="All rights reserved blah blah blah.")
+parser.add_argument("path", default=".", type=str, nargs="?")
+parser.add_argument("-d", "--depth", default=9999, type=int, nargs="?")
+args = parser.parse_args()
+MAX_DEPTH = int(args.depth)
+PROJECT_FOLDER = args.path
+
 font = ImageFont.load_default(size=FONT_SIZE)
 title_font = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
+
 # build the tree
 IGNORE_LIST = load_ignores()
 build_tree(PROJECT_FOLDER)
