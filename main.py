@@ -194,7 +194,8 @@ def main():
 
     # DRAW the tree into the IMAGE
     printer()
-    IMAGE.save("example.png")
+    save_path = PROJECT_FOLDER + "/FileTree.png"
+    IMAGE.save(save_path)
 
 if __name__== "__main__":
     main()
