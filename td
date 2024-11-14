@@ -10,10 +10,8 @@ import re
 PROJECT_FOLDER = ""
 IGNORE_FILE_NAME = ".tdignore"
 ELEMENT_LIST = [] 
-ICON_DIR = Path(__file__).parent + "/icons/"
-print("icon dir: " + ICON_DIR)
+ICON_DIR = str(Path(__file__).parent) + "/icons/"
 MAX_DEPTH = 2
-
 START_X, START_Y = 10, 10
 LINE_NUMBER = 1
 FONT_SIZE = 30
@@ -183,6 +181,7 @@ def main():
     PROJECT_FOLDER = args.path
     if PROJECT_FOLDER == ".":
         PROJECT_FOLDER = os.getcwd()
+    print(PROJECT_FOLDER)
 
     FONT = ImageFont.load_default(size=FONT_SIZE)
     TITLE_FONT = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
