@@ -108,7 +108,7 @@ def tree_walker(path, depth) -> list:
         return ["too deep placeholder"]
 
 def get_text_dimensions(text_string, font) -> tuple:
-    # source: https://levelup.gitconnected.com/how-to-properly-calculate-text-size-in-pil-images-17a2cc6f51fd
+    # source: https://levelup.gitconnected.com/how-to-properly-calculate-text-size-in-pil-IMAGEs-17a2cc6f51fd
     # https://stackoverflow.com/a/46220683/9263761
     ascent, descent = font.getmetrics()
     text_width = font.getmask(text_string).getbbox()[2]
@@ -119,7 +119,7 @@ def define_window_size():
     global WINDOW_WIDTH, WINDOW_HEIGHT, LINE_INCREMENT
     max_line_length = 0
     for element in ELEMENT_LIST:
-        text_width, text_height = get_text_dimensions(element.name, font=font)
+        text_width, text_height = get_text_dimensions(element.name, font=FONT)
         length = text_width + element.xy[0]
         if length > max_line_length:
             max_line_length = length 
@@ -135,7 +135,7 @@ def build_tree(path):
 def print_text():
     for element in sorted(ELEMENT_LIST):
         xy = (element.xy[0] + ICON_SIZE + 5, element.xy[1])
-        draw.text(xy=(xy), text=element.name, fill="black", font=font)
+        DRAW.text(xy=(xy), text=element.name, fill="black", font=FONT)
     return 
 
 def print_branches(): # fix ofset to make space for the icons
@@ -146,8 +146,8 @@ def print_branches(): # fix ofset to make space for the icons
                 if type(child) != str: # this is to avoid the placeholders for elements which are too deep. 
                     child_xy = (child.xy[0] + CHILD_OFFSET_X, child.xy[1] + CHILD_OFFSET_Y)
                     elbow = (parent_xy[0], child_xy[1])
-                    draw.line([parent_xy, elbow], fill="black", width=1)
-                    draw.line([child_xy, elbow], fill="black", width=1)
+                    DRAW.line([parent_xy, elbow], fill="black", width=1)
+                    DRAW.line([child_xy, elbow], fill="black", width=1)
     return
 
 def print_icons():
@@ -155,12 +155,12 @@ def print_icons():
         icon_path = element.define_element_icon()
         with Image.open(icon_path) as i:
             smol_icon = i.resize((ICON_SIZE,ICON_SIZE))
-            image.paste(smol_icon, element.xy, smol_icon)
+            IMAGE.paste(smol_icon, element.xy, smol_icon)
     return
 
 def print_project_name(): # this is not working
     project_name = re.search("([^/]+)/*$" , PROJECT_FOLDER).group(1)
-    draw.text(xy=(START_X,START_Y), text=project_name, fill="black", font=title_font)
+    DRAW.text(xy=(START_X,START_Y), text=project_name, fill="black", font=TITLE_FONT)
     return
 
 def printer(): 
@@ -171,25 +171,30 @@ def printer():
     return
 
 ### RUN ### 
-parser = argparse.ArgumentParser(prog="TreeDoc", description="Create lovely pictures of your project's file tree!", epilog="All rights reserved blah blah blah.")
-parser.add_argument("path", default=".", type=str, nargs="?")
-parser.add_argument("-d", "--depth", default=9999, type=int, nargs="?")
-args = parser.parse_args()
-MAX_DEPTH = int(args.depth)
-PROJECT_FOLDER = args.path
-if PROJECT_FOLDER == ".":
-    PROJECT_FOLDER = os.getcwd()
+def main():
+    global MAX_DEPTH, PROJECT_FOLDER, FONT, TITLE_FONT, DRAW, IGNORE_LIST, IMAGE
+    parser = argparse.ArgumentParser(prog="TreeDoc", description="Create lovely pictures of your project's file tree!", epilog="All rights reserved blah blah blah.")
+    parser.add_argument("path", default=".", type=str, nargs="?")
+    parser.add_argument("-d", "--depth", default=9999, type=int, nargs="?")
+    args = parser.parse_args()
+    MAX_DEPTH = int(args.depth)
+    PROJECT_FOLDER = args.path
+    if PROJECT_FOLDER == ".":
+        PROJECT_FOLDER = os.getcwd()
 
-font = ImageFont.load_default(size=FONT_SIZE)
-title_font = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
+    FONT = ImageFont.load_default(size=FONT_SIZE)
+    TITLE_FONT = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
 
-# build the tree
-IGNORE_LIST = load_ignores()
-build_tree(PROJECT_FOLDER)
-# initialize iamgedrawer object
-image = Image.new("RGB", (WINDOW_WIDTH, WINDOW_HEIGHT), "white")
-draw = ImageDraw.Draw(image)
+    # build the tree
+    IGNORE_LIST = load_ignores()
+    build_tree(PROJECT_FOLDER)
+    # initialize iamgeDRAWer object
+    IMAGE = Image.new("RGB", (WINDOW_WIDTH, WINDOW_HEIGHT), "white")
+    DRAW = ImageDraw.Draw(IMAGE)
 
-# draw the tree into the image
-printer()
-image.save("example.png")
+    # DRAW the tree into the IMAGE
+    printer()
+    IMAGE.save("example.png")
+
+if __name__== "__main__":
+    main()
