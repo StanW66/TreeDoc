@@ -9,4 +9,6 @@ it works on both now but doing the setup for windows might be to much. Linux has
     - directory in ~ and store everything there
     - reference to it in path
 - main function: pack all the stuff for runniung it in there. 
-- implement project name!!!
+- where does it save the image? 
+    - should it go to the project folder?
+    - or maybe to Home? 

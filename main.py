@@ -159,7 +159,7 @@ def print_icons():
     return
 
 def print_project_name(): # this is not working
-    project_name = os.path.basename(os.getcwd())
+    project_name = re.search("([^/]+)/*$" , PROJECT_FOLDER).group(1)
     draw.text(xy=(START_X,START_Y), text=project_name, fill="black", font=title_font)
     return
 
@@ -177,6 +177,8 @@ parser.add_argument("-d", "--depth", default=9999, type=int, nargs="?")
 args = parser.parse_args()
 MAX_DEPTH = int(args.depth)
 PROJECT_FOLDER = args.path
+if PROJECT_FOLDER == ".":
+    PROJECT_FOLDER = os.getcwd()
 
 font = ImageFont.load_default(size=FONT_SIZE)
 title_font = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
