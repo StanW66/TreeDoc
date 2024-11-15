@@ -158,7 +158,7 @@ def print_icons():
             IMAGE.paste(smol_icon, element.xy, smol_icon)
     return
 
-def print_project_name(): # this is not working
+def print_project_name():
     project_name = re.search("([^/]+)/*$" , PROJECT_FOLDER).group(1)
     DRAW.text(xy=(START_X,START_Y), text=project_name, fill="black", font=TITLE_FONT)
     return
@@ -170,8 +170,8 @@ def printer():
     print_branches()
     return
 
-### RUN ### 
 def main():
+    # parse arguments and define global variables
     global MAX_DEPTH, PROJECT_FOLDER, FONT, TITLE_FONT, DRAW, IGNORE_LIST, IMAGE
     parser = argparse.ArgumentParser(prog="TreeDoc", description="Create lovely pictures of your project's file tree!", epilog="All rights reserved blah blah blah.")
     parser.add_argument("path", default=".", type=str, nargs="?")
@@ -183,12 +183,14 @@ def main():
         PROJECT_FOLDER = os.getcwd()
     print(PROJECT_FOLDER)
 
+    # initialize Font for PIL
     FONT = ImageFont.load_default(size=FONT_SIZE)
     TITLE_FONT = ImageFont.load_default(size=int(FONT_SIZE * 1.5))
 
     # build the tree
     IGNORE_LIST = load_ignores()
     build_tree(PROJECT_FOLDER)
+
     # initialize iamgeDRAWer object
     IMAGE = Image.new("RGB", (WINDOW_WIDTH, WINDOW_HEIGHT), "white")
     DRAW = ImageDraw.Draw(IMAGE)
