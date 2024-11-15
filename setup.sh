@@ -1,2 +1,6 @@
 #! /usr/bin/bash
-export PATH="$PATH:$HOME/dev/TreeDoc"
+path=$(pwd)
+exportstring='export PATH="$PATH:'
+exportstring+=$path
+exportstring+='"'
+echo $exportstring >> ~/.bashrc
