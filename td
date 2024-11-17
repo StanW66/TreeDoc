@@ -72,10 +72,13 @@ def load_ignores() -> list:
                 else:
                     return True
             ignore_list = list(filter(filter_comment, line_list))
+            return_list = []
+            for ignore in ignore_list:
+                return_list.append(PROJECT_FOLDER + "/" + ignore)
     else:
         print("no ignore file found.")
         ignore_list = []
-    return ignore_list
+    return return_list
 
 def check_igonre(element) -> bool:
     if element in IGNORE_LIST:
@@ -90,7 +93,7 @@ def tree_walker(path, depth) -> list:
         elements = os.listdir(path)
         for element in elements:
             element_path = path + "/" + element
-            if check_igonre(element):
+            if check_igonre(element_path):
                 continue
             LINE_NUMBER += 1
             x, y = depth * DEPTH_INCREMENT, LINE_NUMBER * LINE_INCREMENT
@@ -181,7 +184,6 @@ def main()-> None:
     PROJECT_FOLDER = args.path
     if PROJECT_FOLDER == ".":
         PROJECT_FOLDER = os.getcwd()
-    print(PROJECT_FOLDER)
 
     # initialize Font for PIL
     FONT = ImageFont.load_default(size=FONT_SIZE)
