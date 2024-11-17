@@ -115,7 +115,7 @@ def get_text_dimensions(text_string, font) -> tuple:
     text_height = font.getmask(text_string).getbbox()[3] + descent + ascent
     return (text_width, text_height)
 
-def define_window_size():
+def define_window_size() -> None:
     global WINDOW_WIDTH, WINDOW_HEIGHT, LINE_INCREMENT
     max_line_length = 0
     for element in ELEMENT_LIST:
@@ -127,18 +127,18 @@ def define_window_size():
     WINDOW_HEIGHT = len(ELEMENT_LIST) * LINE_INCREMENT + 3 * LINE_INCREMENT
     return
 
-def build_tree(path):
+def build_tree(path)-> None:
     tree_walker(path, 1)
     define_window_size()
     return 
 
-def print_text():
+def print_text()-> None:
     for element in sorted(ELEMENT_LIST):
         xy = (element.xy[0] + ICON_SIZE + 5, element.xy[1])
         DRAW.text(xy=(xy), text=element.name, fill="black", font=FONT)
     return 
 
-def print_branches(): # fix ofset to make space for the icons
+def print_branches()-> None: # fix ofset to make space for the icons
     for element in ELEMENT_LIST:
         if type(element) == Directory:
             parent_xy = (element.xy[0] + PARENT_OFFSET_X, element.xy[1] + PARENT_OFFSET_Y)
@@ -150,7 +150,7 @@ def print_branches(): # fix ofset to make space for the icons
                     DRAW.line([child_xy, elbow], fill="black", width=1)
     return
 
-def print_icons():
+def print_icons()-> None:
     for element in ELEMENT_LIST:
         icon_path = element.define_element_icon()
         with Image.open(icon_path) as i:
@@ -158,19 +158,19 @@ def print_icons():
             IMAGE.paste(smol_icon, element.xy, smol_icon)
     return
 
-def print_project_name():
+def print_project_name()-> None:
     project_name = re.search("([^/]+)/*$" , PROJECT_FOLDER).group(1)
     DRAW.text(xy=(START_X,START_Y), text=project_name, fill="black", font=TITLE_FONT)
     return
 
-def printer(): 
+def printer()-> None: 
     print_project_name()
     print_icons()
     print_text()
     print_branches()
     return
 
-def main():
+def main()-> None:
     # parse arguments and define global variables
     global MAX_DEPTH, PROJECT_FOLDER, FONT, TITLE_FONT, DRAW, IGNORE_LIST, IMAGE
     parser = argparse.ArgumentParser(prog="TreeDoc", description="Create lovely pictures of your project's file tree!", epilog="All rights reserved blah blah blah.")
@@ -199,6 +199,7 @@ def main():
     printer()
     save_path = PROJECT_FOLDER + "/FileTree.png"
     IMAGE.save(save_path)
+    return
 
 if __name__== "__main__":
     main()
