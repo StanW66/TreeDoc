@@ -77,7 +77,7 @@ def load_ignores() -> list:
                 return_list.append(PROJECT_FOLDER + "/" + ignore)
     else:
         print("no ignore file found.")
-        ignore_list = []
+        return_list = []
     return return_list
 
 def check_igonre(element) -> bool:
